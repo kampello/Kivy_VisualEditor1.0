@@ -7,6 +7,7 @@ def export_to_kv(widgets, filepath="kivy.kv"):
     Args:
         widgets (list): Lista de widgets para exportar.
         filepath (str): Caminho do ficheiro onde salvar o conteúdo .kv.
+
     """
     with open(filepath, "w", encoding="utf-8") as f:
         f.write("<FloatLayout>:\n")
