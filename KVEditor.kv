@@ -1,12 +1,66 @@
 <Editor>:
     orientation: 'horizontal'
+    spacing: 10
+    padding: 10
 
-    # === Paleta de widgets ===
     BoxLayout:
         orientation: 'vertical'
-        size_hint_x: 0.18
-        padding: 8
-        spacing: 8
+        size_hint_x: 0.25
+        spacing: 5
+
+        Label:
+            text: 'Adicionar Widget'
+            size_hint_y: None
+            height: 30
+            bold: True
+
+        Button:
+            text: 'Adicionar Botão'
+            on_release: root.add_widget_to_canvas('Button')
+
+        Button:
+            text: 'Adicionar Label'
+            on_release: root.add_widget_to_canvas('Label')
+
+        Button:
+            text: 'Adicionar TextInput'
+            on_release: root.add_widget_to_canvas('TextInput')
+
+        Label:
+            text: 'Exportações'
+            size_hint_y: None
+            height: 30
+            bold: True
+
+        Button:
+            text: 'Exportar .kv'
+            on_release: root.export_layout()
+
+        Button:
+            text: 'Exportar como Imagem'
+            on_release: root.export_as_image()
+
+        Label:
+            text: 'Projeto'
+            size_hint_y: None
+            height: 30
+
+        Button:
+            text: 'Salvar Projeto'
+            on_release: root.save_project()
+
+        Button:
+            text: 'Carregar Projeto'
+            on_release: root.load_project()
+
+        Button:
+            text: 'Remover Widget Selecionado'
+            on_release: root.remove_selected_widget()
+
+
+    FloatLayout:
+        id: canvas_area
+        size_hint_x: 0.55
         canvas.before:
             Color:
                 rgba: 0.95, 0.95, 0.95, 1
@@ -14,162 +68,62 @@
                 pos: self.pos
                 size: self.size
 
-        Label:
-            text: "Paleta de Widgets"
-            size_hint_y: None
-            height: 30
-            color: 0, 0, 0, 1  # texto preto
 
-        Button:
-            text: 'Botão'
-            size_hint_y: None
-            height: 35
-            color: 0, 0, 0, 1
-            on_release: root.add_widget_to_canvas('Button')
-
-        Button:
-            text: 'Label'
-            size_hint_y: None
-            height: 35
-            color: 0, 0, 0, 1
-            on_release: root.add_widget_to_canvas('Label')
-
-        Widget:
-            size_hint_y: 1
-
-        # Separador visual
-        Widget:
-            size_hint_y: None
-            height: 1
-            canvas:
-                Color:
-                    rgba: 0.7, 0.7, 0.7, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-
-        Button:
-            text: 'Exportar .kv'
-            size_hint_y: None
-            height: 40
-            color: 0, 0, 0, 1
-            on_release: root.export_layout()
-
-    # === Área do Canvas ===
-    FloatLayout:
-        id: canvas_area
-        size_hint_x: 0.52
-        canvas.before:
-            Color:
-                rgba: 0.9, 0.9, 0.9, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
-
-    # === Propriedades do widget ===
     BoxLayout:
         orientation: 'vertical'
-        size_hint_x: 0.3
-        padding: 8
-        spacing: 8
-        canvas.before:
-            Color:
-                rgba: 0.97, 0.97, 0.97, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
+        size_hint_x: 0.2
+        spacing: 5
 
         Label:
             id: prop_label
             text: 'Nenhum widget selecionado'
             size_hint_y: None
             height: 30
-            color: 0, 0, 0, 1
 
-        ScrollView:
-            do_scroll_x: False
+        Label:
+            text: 'Texto'
+            size_hint_y: None
+            height: 20
+        TextInput:
+            id: prop_text
+            multiline: False
+            on_text: root.update_selected_text(self.text)
 
-            BoxLayout:
-                orientation: 'vertical'
-                size_hint_y: None
-                height: self.minimum_height
-                spacing: 8
+        Label:
+            text: 'ID'
+            size_hint_y: None
+            height: 20
+        TextInput:
+            id: prop_id
+            multiline: False
+            on_text: root.update_selected_id(self.text)
 
-                BoxLayout:
-                    orientation: 'horizontal'
-                    size_hint_y: None
-                    height: 30
-                    Label:
-                        text: "Texto:"
-                        size_hint_x: 0.3
-                        color: 0, 0, 0, 1
-                    TextInput:
-                        id: prop_text
-                        multiline: False
-                        on_text: root.update_selected_text(self.text)
+        Label:
+            text: 'Largura'
+            size_hint_y: None
+            height: 20
+        TextInput:
+            id: prop_width
+            multiline: False
+            on_text: root.update_selected_width(self.text)
 
-                BoxLayout:
-                    orientation: 'horizontal'
-                    size_hint_y: None
-                    height: 30
-                    Label:
-                        text: "ID:"
-                        size_hint_x: 0.3
-                        color: 0, 0, 0, 1
-                    TextInput:
-                        id: prop_id
-                        multiline: False
-                        on_text: root.update_selected_id(self.text)
+        Label:
+            text: 'Altura'
+            size_hint_y: None
+            height: 20
+        TextInput:
+            id: prop_height
+            multiline: False
+            on_text: root.update_selected_height(self.text)
 
-                BoxLayout:
-                    orientation: 'horizontal'
-                    size_hint_y: None
-                    height: 30
-                    Label:
-                        text: "Largura:"
-                        size_hint_x: 0.3
-                        color: 0, 0, 0, 1
-                    TextInput:
-                        id: prop_width
-                        multiline: False
-                        input_filter: 'int'
-                        on_text: root.update_selected_width(self.text)
+        Button:
+            text: 'Cor do Texto'
+            size_hint_y: None
+            height: 40
+            on_release: root.open_color_picker('text')
 
-                BoxLayout:
-                    orientation: 'horizontal'
-                    size_hint_y: None
-                    height: 30
-                    Label:
-                        text: "Altura:"
-                        size_hint_x: 0.3
-                        color: 0, 0, 0, 1
-                    TextInput:
-                        id: prop_height
-                        multiline: False
-                        input_filter: 'int'
-                        on_text: root.update_selected_height(self.text)
-
-                # Separador visual
-                Widget:
-                    size_hint_y: None
-                    height: 1
-                    canvas:
-                        Color:
-                            rgba: 0.7, 0.7, 0.7, 1
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-
-                Button:
-                    text: "Cor do Texto"
-                    size_hint_y: None
-                    height: 40
-                    color: 0, 0, 0, 1
-                    on_release: root.open_color_picker()
-
-                Button:
-                    text: "Cor do Fundo"
-                    size_hint_y: None
-                    height: 40
-                    color: 0, 0, 0, 1
-                    on_release: root.open_color_picker('background')
+        Button:
+            text: 'Cor de Fundo'
+            size_hint_y: None
+            height: 40
+            on_release: root.open_color_picker('background')

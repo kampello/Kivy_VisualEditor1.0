@@ -1,28 +1,36 @@
 import os
+import json
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.uix.colorpicker import ColorPicker
 from kivy.lang import Builder
-from kv_exporter import export_to_kv
+from kivy.core.window import Window
+from kv_exporter import export_to_kv  # Supondo que ainda usas isso para gerar o .kv
 
 
 class Editor(BoxLayout):
     selected_widget = None
     dragging_widget = None
+    widget_counter = 0
 
     def add_widget_to_canvas(self, widget_type):
         canvas = self.ids.canvas_area
         widget = None
+        self.widget_counter += 1
 
         if widget_type == 'Button':
             widget = Button(text='Botão', size_hint=(None, None), size=(100, 50), pos=(100, 100))
         elif widget_type == 'Label':
-            widget = Label(text='Label', size_hint=(None, None), size=(100, 50), pos=(100, 160),color=(0, 0, 0, 1))
+            widget = Label(text='Label', size_hint=(None, None), size=(100, 50), pos=(100, 160), color=(0, 0, 0, 1))
+        elif widget_type == 'TextInput':
+            widget = TextInput(text='Texto', size_hint=(None, None), size=(120, 50), pos=(100, 220), foreground_color=(0, 0, 0, 1))
 
         if widget:
+            widget.id = f'{widget_type.lower()}{self.widget_counter}'
             widget.bind(on_touch_down=self.on_widget_touch_down)
             widget.bind(on_touch_move=self.on_widget_touch_move)
             widget.bind(on_touch_up=self.on_widget_touch_up)
@@ -105,19 +113,24 @@ class Editor(BoxLayout):
         self.popup.dismiss()
 
     def apply_text_color(self, rgba):
-        if self.selected_widget and hasattr(self.selected_widget, 'color'):
-            self.selected_widget.color = rgba
+        if self.selected_widget:
+            if isinstance(self.selected_widget, TextInput):
+                self.selected_widget.foreground_color = rgba
+            elif hasattr(self.selected_widget, 'color'):
+                self.selected_widget.color = rgba
 
     def apply_background_color(self, rgba):
         if not self.selected_widget:
             return
         if isinstance(self.selected_widget, Button):
             self.selected_widget.background_color = rgba
+        elif isinstance(self.selected_widget, TextInput):
+            self.selected_widget.background_color = rgba
         elif isinstance(self.selected_widget, Label):
             canvas = self.selected_widget.canvas.before
             canvas.clear()
             from kivy.graphics import Color, Rectangle
-            with self.selected_widget.canvas.before:
+            with canvas:
                 Color(*rgba)
                 rect = Rectangle(pos=self.selected_widget.pos, size=self.selected_widget.size)
 
@@ -127,18 +140,70 @@ class Editor(BoxLayout):
 
             self.selected_widget.bind(pos=update_rect, size=update_rect)
 
-    def export_layout(self):
-        canvas = self.ids.canvas_area
+    def remove_selected_widget(self):
+        if self.selected_widget and self.selected_widget.parent:
+            self.selected_widget.parent.remove_widget(self.selected_widget)
+            self.selected_widget = None
+            self.ids.prop_label.text = "Nenhum widget selecionado"
 
-        # Cria pasta se não existir
+    def save_project(self):
+        canvas = self.ids.canvas_area
+        data = []
+
+        for widget in canvas.children:
+            data.append({
+                'type': widget.__class__.__name__,
+                'text': getattr(widget, 'text', ''),
+                'id': getattr(widget, 'id', ''),
+                'pos': list(widget.pos),
+                'size': list(widget.size),
+                'color': getattr(widget, 'color', (0, 0, 0, 1))
+            })
+
+        with open("layout.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+
+    def load_project(self):
+        try:
+            with open("layout.json", "r", encoding="utf-8") as f:
+                widgets_data = json.load(f)
+
+            canvas = self.ids.canvas_area
+            canvas.clear_widgets()
+
+            for w in widgets_data:
+                widget_type = w['type']
+                widget = None
+
+                if widget_type == 'Button':
+                    widget = Button()
+                elif widget_type == 'Label':
+                    widget = Label()
+                elif widget_type == 'TextInput':
+                    widget = TextInput()
+
+                if widget:
+                    widget.text = w.get('text', '')
+                    widget.id = w.get('id', '')
+                    widget.pos = w.get('pos', [100, 100])
+                    widget.size = w.get('size', [100, 50])
+                    if hasattr(widget, 'color'):
+                        widget.color = w.get('color', (0, 0, 0, 1))
+
+                    widget.bind(on_touch_down=self.on_widget_touch_down)
+                    widget.bind(on_touch_move=self.on_widget_touch_move)
+                    widget.bind(on_touch_up=self.on_widget_touch_up)
+                    canvas.add_widget(widget)
+        except Exception as e:
+            print("Erro ao carregar layout:", e)
+
+    def export_layout(self):
         export_folder = 'exported_ui'
         os.makedirs(export_folder, exist_ok=True)
 
-        # Exporta o arquivo .kv para a pasta
         kv_path = os.path.join(export_folder, 'kivy.kv')
-        export_to_kv(canvas.children[::-1], filepath=kv_path)
+        export_to_kv(self.ids.canvas_area.children[::-1], filepath=kv_path)
 
-        # Salva o main.py na mesma pasta
         self.save_main_py(export_folder)
 
     def save_main_py(self, folder):
@@ -161,8 +226,10 @@ if __name__ == '__main__':
         with open(main_py_path, "w", encoding="utf-8") as f:
             f.write(main_py_content)
 
+    def export_as_image(self):
+        Window.screenshot(name='layout_export.png')
 
-# <- fora da classe Editor
+
 class KVEditorApp(App):
     def build(self):
         return Editor()

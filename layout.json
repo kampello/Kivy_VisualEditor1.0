@@ -1,0 +1,97 @@
+[
+    {
+        "type": "Label",
+        "text": "MADE BY @KAMPELLO 2025",
+        "id": "label5",
+        "pos": [
+            263.0,
+            10
+        ],
+        "size": [
+            100,
+            50
+        ],
+        "color": [
+            0,
+            0,
+            0,
+            1
+        ]
+    },
+    {
+        "type": "Label",
+        "text": "LOGIN:",
+        "id": "label4",
+        "pos": [
+            272.0,
+            280.0
+        ],
+        "size": [
+            20,
+            50
+        ],
+        "color": [
+            0,
+            0,
+            0,
+            1
+        ]
+    },
+    {
+        "type": "TextInput",
+        "text": "senha",
+        "id": "textinput3",
+        "pos": [
+            261.5,
+            178.0
+        ],
+        "size": [
+            223,
+            50
+        ],
+        "color": [
+            0,
+            0,
+            0,
+            1
+        ]
+    },
+    {
+        "type": "TextInput",
+        "text": "Texto",
+        "id": "textinput2",
+        "pos": [
+            260.5,
+            240.0
+        ],
+        "size": [
+            223,
+            50
+        ],
+        "color": [
+            0,
+            0,
+            0,
+            1
+        ]
+    },
+    {
+        "type": "Button",
+        "text": "Bot\u00e3o",
+        "id": "button1",
+        "pos": [
+            496.0,
+            240.0
+        ],
+        "size": [
+            100,
+            50
+        ],
+        "color": [
+            1,
+            1,
+            1,
+            1
+        ]
+    }
+]
